@@ -127,11 +127,9 @@ def getstats(blueprint):
         curpos += blockSize
     totalmessage.append("-----------\n")
     tracecount = 0
-    wificount = 0
     buscount = 0
     def countMessage (name, counts, rgba):
-        nonlocal tracecount 
-        nonlocal wificount 
+        nonlocal tracecount  
         nonlocal buscount 
         nonlocal totalmessage
         if rgba in counts and counts[rgba] > 0 and not (name.startswith("Bus") or name.startswith("Trace")):
