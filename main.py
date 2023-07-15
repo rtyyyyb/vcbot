@@ -138,12 +138,8 @@ def getstats(blueprint):
             totalmessage.append(name + " pixels: " + str(counts[rgba]) + ", ")
         elif name.startswith("Trace")  and rgba in counts:
             tracecount += counts[rgba]
-            if name == "Trace16":
-                totalmessage.append("Trace pixels: " + str(tracecount) + ", ")
         elif name.startswith("Bus") and rgba in counts:
             buscount += counts[rgba]
-            if name == "Bus6":
-                totalmessage.append("Bus pixels: " + str(buscount) + ", ")
     countMessage("Cross", counts, (102, 120, 142, 255))
     countMessage("Tunnel", counts, (83, 85, 114, 255))
     countMessage("Mesh", counts, (100, 106, 87, 255))
@@ -192,6 +188,10 @@ def getstats(blueprint):
     countMessage("Wifi3", counts, (255, 0, 143, 255))
     countMessage("Annotation", counts, (58, 69, 81, 255))
     countMessage("Filler", counts, (140, 171, 161, 255))
+    if tracecount > 0:
+        totalmessage.append("Trace pixels: " + str(tracecount) + ", ")
+    if buscount > 0:
+        totalmessage.append("Bus pixels: " + str(buscount) + ", ")
     totalmessage.append("```")
     return totalmessage
 
