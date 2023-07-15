@@ -14,5 +14,8 @@ The helper bot for Virtual Circuit Board players. Dedicated to enhancing your VC
 ### !image
 !image will make a image of a blueprint. the blueprint can be given as a part of the message or a text file but it can also generate a image from a repied to message
 ![image](https://github.com/rtyyyyb/vcbot/assets/109173130/f45aa32c-6e57-4981-bfb5-94f76284cd4a)
+![image](https://github.com/rtyyyyb/vcbot/assets/109173130/816030e7-7fde-4da5-b20d-3582802a9c2e)
 ![image](https://github.com/rtyyyyb/vcbot/assets/109173130/95273958-b70f-4bd0-83ff-9da25c1fdfd6)
+### !stats
+!stats gets some stats about a given blueprint like size and pixel count. its can be used the same way was !image
 
