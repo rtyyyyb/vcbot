@@ -11,3 +11,8 @@ The helper bot for Virtual Circuit Board players. Dedicated to enhancing your VC
 ### !rtfm
 !rtfm (or read the F****** manual) takes in one argument and searches for it in the user guide. if it finds more than 4 results it will give a list of found sections but if it finds 4 or less it will send a image of each of those sections 
 ![image](https://github.com/rtyyyyb/vcbot/assets/109173130/978fea70-45c3-4829-b31d-a23d23107841) ![image](https://github.com/rtyyyyb/vcbot/assets/109173130/a9c597b3-2432-42cb-aeef-68ae7435e1b2)
+### !image
+!image will make a image of a blueprint. the blueprint can be given as a part of the message or a text file but it can also generate a image from a repied to message
+![image](https://github.com/rtyyyyb/vcbot/assets/109173130/f45aa32c-6e57-4981-bfb5-94f76284cd4a)
+![image](https://github.com/rtyyyyb/vcbot/assets/109173130/95273958-b70f-4bd0-83ff-9da25c1fdfd6)
+
