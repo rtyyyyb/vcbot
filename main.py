@@ -134,7 +134,7 @@ def getstats(blueprint):
         nonlocal wificount 
         nonlocal buscount 
         nonlocal totalmessage
-        if rgba in counts and counts[rgba] > 0 and not (name.startswith("Bus") or name.startswith("Trace") or name.startswith("Wifi")):
+        if rgba in counts and counts[rgba] > 0 and not (name.startswith("Bus") or name.startswith("Trace")):
             totalmessage.append(name + " pixels: " + str(counts[rgba]) + ", ")
         elif name.startswith("Trace")  and rgba in counts:
             tracecount += counts[rgba]
@@ -144,10 +144,6 @@ def getstats(blueprint):
             buscount += counts[rgba]
             if name == "Bus6":
                 totalmessage.append("Bus pixels: " + str(buscount) + ", ")
-        elif name.startswith("Wifi")  and rgba in counts:
-            wificount += counts[rgba]
-            if name == "Wifi3":
-                totalmessage.append("Wifi pixels: " + str(wificount) + ", ") 
     countMessage("Cross", counts, (102, 120, 142, 255))
     countMessage("Tunnel", counts, (83, 85, 114, 255))
     countMessage("Mesh", counts, (100, 106, 87, 255))
@@ -287,7 +283,7 @@ def time():
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(levelname)s: %(message)s")
-    bot = CustomBot(prefix="!", ext_dir="cogs")
+    bot = CustomBot(prefix="!", ext_dir="cogs", activity=discord.Game(name='!help to learn more'))
 
     @bot.command(aliases=['hi'])
     async def hello(ctx: commands.Context, *args):
@@ -326,6 +322,7 @@ def main() -> None:
         await ctx.send(" ".join(totalmessage))
 
     @bot.command()
+    @commands.has_permissions(attach_files=True)
     async def image(ctx: commands.Context, *args):
         """makes a image of a blueprint"""
         print(time() + " INFO: user \"" + str(ctx.author.name) + "\" used: !image")
@@ -416,7 +413,7 @@ def main() -> None:
             "virtual devices", 
         ]
         for item in guides:
-            if " ".join(question) in item:
+            if " ".join(question).lower() in item:
                 totalmessage.append(str(item))
         if question == ():
             await ctx.send("please provide a query")
@@ -426,7 +423,7 @@ def main() -> None:
             await ctx.send("please be more specific")
         elif len(totalmessage) >= 5:
             matched = False
-            question = "_".join(question)
+            question = "_".join(question).lower()
             for founditems in totalmessage:
                 if question == founditems.replace(" ","_"):
                     await ctx.send(file=discord.File(founditems.replace(" ","_") + ".png"))
