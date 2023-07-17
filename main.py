@@ -303,8 +303,10 @@ def main() -> None:
                     for text in ctx.message.reference.resolved.content.split():
                         if text.startswith("VCB+") or text.startswith("```VCB+"):
                             blueprint = text
-        elif len("".join(args)) >= 1:
-            blueprint = "".join(args)
+        if len(args) >= 1:
+            for text in args:
+                if text.startswith("VCB+") or text.startswith("```VCB+"):
+                    blueprint = text
         elif len(ctx.message.attachments) == 1:
             blueprint = (await ctx.message.attachments[0].read()).decode()
         # build stats/error message
@@ -334,8 +336,10 @@ def main() -> None:
                     for text in ctx.message.reference.resolved.content.split():
                         if text.startswith("VCB+") or text.startswith("```VCB+"):
                             blueprint = text
-        if len("".join(args)) >= 1:
-            blueprint = "".join(args)
+        if len(args) >= 1:
+            for text in args:
+                if text.startswith("VCB+") or text.startswith("```VCB+"):
+                    blueprint = text
         elif len(ctx.message.attachments) == 1:
             blueprint = (await ctx.message.attachments[0].read()).decode()
         # render blueprint and send image
