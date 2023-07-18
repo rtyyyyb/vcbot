@@ -8,15 +8,11 @@ import base64
 import zstd
 import png
 
-import aiohttp
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
-#bot = commands.Bot(command_prefix=commands.when_mentioned_or("~"), intents=discord.Intents.all())
-
 class CustomBot(commands.Bot):
-    client: aiohttp.ClientSession
     _uptime: datetime.datetime = datetime.datetime.utcnow()
 
     def __init__(self, prefix: str, *args: typing.Any, **kwargs: typing.Any) -> None:
@@ -25,24 +21,12 @@ class CustomBot(commands.Bot):
         intents.message_content = True
         super().__init__(*args, **kwargs, command_prefix=commands.when_mentioned_or(prefix), intents=intents)
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.synced = False
 
     async def on_error(self, event_method: str, *args: typing.Any, **kwargs: typing.Any) -> None:
         self.logger.error(f"An error occurred in {event_method}.\n{traceback.format_exc()}")
 
     async def on_ready(self) -> None:
         self.logger.info(f"Logged in as {self.user} ({self.user.id})")
-
-    async def setup_hook(self) -> None:
-        self.client = aiohttp.ClientSession()
-        if not self.synced:
-            await self.tree.sync()
-            self.synced = not self.synced
-            self.logger.info("Synced command tree")
-
-    async def close(self) -> None:
-        await super().close()
-        await self.client.close()
 
     def run(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         load_dotenv()
