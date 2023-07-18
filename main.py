@@ -44,9 +44,15 @@ class CustomBot(commands.Bot):
     @property
     def uptime(self) -> datetime.timedelta:
         return datetime.datetime.utcnow() - self._uptime
+        
+class Blueprint:
+    version: int
+    checksum: bytearray
+    width: int
+    height: int
+    logicImage: bytearray
 
-def getstats(blueprint):
-    totalmessage = []
+def parseBlueprint (blueprint):
     blueprint = blueprint.replace("```", "")
     blueprint = blueprint.replace("\'", "")
     if not blueprint.startswith("VCB+") and not blueprint.startswith("bVCB+"):
@@ -67,20 +73,16 @@ def getstats(blueprint):
         raise Exception("invalid vcb blueprint - unexpected version number: " + str(version))
     if width * height == 0:
         raise Exception("invalid vcb blueprint - blueprint is 0x0")
-    totalmessage.append("```\n")
-    totalmessage.append("checksum: " + checksum.hex() + "\n")
-    totalmessage.append("width:    " + str(width) + "\n")
-    totalmessage.append("height:   " + str(height) + "\n")
     curpos = 17
+    image = None
     while curpos < len(blueprint):
         blockSize = int.from_bytes(blueprint[curpos:curpos+4], "big")
         layerID = int.from_bytes(blueprint[curpos+4:curpos+8], "big")
         imageSize = int.from_bytes(blueprint[curpos+8:curpos+12], "big")
         if blockSize < 12: # also prevents infinite loops on invalid data if blockSize is 0
-            raise Exception("invalid vcb blueprint - invalid layer block size: " + str(blockSize))
+            totalmessage.append("invalid vcb blueprint - invalid layer block size: " + str(blockSize))
+            return  
         if layerID == 0: # look for logic layer       
-            # compressed image is remainder of block. starts at 12 bytes in (after those
-            # first three 4 byte fields) and ends at end of block.
             try:
                 image = zstd.uncompress(blueprint[curpos+12:curpos+blockSize])
             except Exception:
@@ -88,15 +90,34 @@ def getstats(blueprint):
             # validate uncompressed data length
             if len(image) != imageSize:
                 raise Exception("invalid vcb blueprint - unexpected image size: " + str(imageSize))
-            counts = {}
-            area = 0
-            for i in range(0, len(image), 4):
-                if image[i+3] > 0:
-                    rgb = (int(image[i]), int(image[i+1]), int(image[i+2]), int(image[i+3]))
-                    counts[rgb] = (counts[rgb] if rgb in counts else 0) + 1
-                    area = area + 1
         # advance to next block
         curpos += blockSize
+    # pack into a Blueprint and return
+    bp = Blueprint()
+    bp.version = version
+    bp.checksum = checksum
+    bp.width = width
+    bp.height = height
+    bp.logicImage = image
+    return bp
+
+def getstats(blueprint):
+    bp = parseBlueprint(blueprint)
+    # count pixels in blueprint
+    image = bp.logicImage
+    counts = {}
+    area = 0
+    for i in range(0, len(image), 4):
+        if image[i+3] > 0:
+            rgb = (int(image[i]), int(image[i+1]), int(image[i+2]), int(image[i+3]))
+            counts[rgb] = (counts[rgb] if rgb in counts else 0) + 1
+            area = area + 1
+    # build result message
+    totalmessage = []
+    totalmessage.append("```\n")
+    totalmessage.append("checksum: " + bp.checksum.hex() + "\n")
+    totalmessage.append("width:    " + str(bp.width) + "\n")
+    totalmessage.append("height:   " + str(bp.height) + "\n")
     totalmessage.append("-----------\n")
     tracecount = 0
     buscount = 0
@@ -107,7 +128,7 @@ def getstats(blueprint):
         nonlocal buscount 
         nonlocal totalmessage
         if rgba in counts and counts[rgba] > 0 and not (name.startswith("Bus") or name.startswith("Trace")):
-            totalmessage.append(name + " pixels: " + str(counts[rgba]) + percent(counts[rgba], width * height) + ", ")
+            totalmessage.append(name + " pixels: " + str(counts[rgba]) + percent(counts[rgba], bp.width * bp.height) + ", ")
         elif name.startswith("Trace")  and rgba in counts:
             tracecount += counts[rgba]
         elif name.startswith("Bus") and rgba in counts:
@@ -161,52 +182,15 @@ def getstats(blueprint):
     countMessage("Annotation", counts, (58, 69, 81, 255))
     countMessage("Filler", counts, (140, 171, 161, 255))
     if tracecount > 0:
-        totalmessage.append("Trace pixels: " + str(tracecount) + percent(tracecount, width * height) + ", ")
+        totalmessage.append("Trace pixels: " + str(tracecount) + percent(tracecount, bp.width * bp.height) + ", ")
     if buscount > 0:
-        totalmessage.append("Bus pixels: " + str(buscount) + percent(tracecount, width * height) + ", ")
-    totalmessage.append("Used area: " + str(area) + percent(area, width * height) + ", ")
+        totalmessage.append("Bus pixels: " + str(buscount) + percent(tracecount, bp.width * bp.height) + ", ")
+    totalmessage.append("Used area: " + str(area) + percent(area, bp.width * bp.height) + ", ")
     totalmessage.append("```")
     return totalmessage
 
 def render(blueprint):
-    totalmessage = []
-    blueprint = blueprint.replace("```", "")
-    blueprint = blueprint.replace("\'", "")
-    if not blueprint.startswith("VCB+") and not blueprint.startswith("bVCB+"):
-        raise Exception("invalid vcb blueprint - header error")
-    if blueprint.startswith("VCB+"):
-        blueprint = blueprint[4:] # strip the VCB+
-    if blueprint.startswith("bVCB+"):
-        blueprint = blueprint[5:] # strip the bVCB+
-    try:
-        blueprint = base64.b64decode(blueprint)
-    except Exception:
-        raise Exception("invalid vcb blueprint - base64 error")
-    version = int.from_bytes(blueprint[0:3], "big")
-    width = int.from_bytes(blueprint[9:13], "big")
-    height = int.from_bytes(blueprint[13:17], "big")        
-    if version != 0:
-        raise Exception("invalid vcb blueprint - unexpected version number: " + str(version))
-    if width * height == 0:
-        raise Exception("invalid vcb blueprint - blueprint is 0x0")
-    curpos = 17
-    while curpos < len(blueprint):
-        blockSize = int.from_bytes(blueprint[curpos:curpos+4], "big")
-        layerID = int.from_bytes(blueprint[curpos+4:curpos+8], "big")
-        imageSize = int.from_bytes(blueprint[curpos+8:curpos+12], "big")
-        if blockSize < 12: # also prevents infinite loops on invalid data if blockSize is 0
-            totalmessage.append("invalid vcb blueprint - invalid layer block size: " + str(blockSize))
-            return  
-        if layerID == 0: # look for logic layer       
-            try:
-                image = zstd.uncompress(blueprint[curpos+12:curpos+blockSize])
-            except Exception:
-                raise Exception("invalid vcb blueprint - zstd error")
-            # validate uncompressed data length
-            if len(image) != imageSize:
-                raise Exception("invalid vcb blueprint - unexpected image size: " + str(imageSize))
-        # advance to next block
-        curpos += blockSize
+
     def zoomImage(image, width, height, zoom):
         if zoom == 1:
             return image
@@ -242,12 +226,15 @@ def render(blueprint):
             "bitdepth": 8
         })
         pngimage.save(filename)
-    zoom = int(800 / width)
+ 
+    bp = parseBlueprint(blueprint)
+
+    zoom = int(800 / bp.width)
     if zoom < 1:
         zoom = 1
     elif zoom > 16:
         zoom = 16
-    saveImage("tempimage.png", image, width, height, zoom)
+    saveImage("tempimage.png", bp.logicImage, bp.width, bp.height, zoom)
 
 def time():
     time = str(datetime.datetime.utcnow()).replace(".",",") 
