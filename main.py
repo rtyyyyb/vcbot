@@ -80,7 +80,8 @@ def parseBlueprint (blueprint):
         layerID = int.from_bytes(blueprint[curpos+4:curpos+8], "big")
         imageSize = int.from_bytes(blueprint[curpos+8:curpos+12], "big")
         if blockSize < 12: # also prevents infinite loops on invalid data if blockSize is 0
-            raise Exception("invalid vcb blueprint - invalid layer block size: " + str(blockSize))
+            totalmessage.append("invalid vcb blueprint - invalid layer block size: " + str(blockSize))
+            return  
         if layerID == 0: # look for logic layer       
             try:
                 image = zstd.uncompress(blueprint[curpos+12:curpos+blockSize])
@@ -269,7 +270,7 @@ def main() -> None:
         print(time() + " INFO: user \"" + str(ctx.author.name) + "\" used: !hello / !hi")
         await ctx.send("hello! "+ str(ctx.author.mention))
 
-    @bot.command()
+    @bot.command(aliases=['statistics'])
     async def stats(ctx: commands.Context,  *args):
         """returns the stats of a blueprint"""
         print(time() + " INFO: user \"" + str(ctx.author.name) + "\" used: !stats")
@@ -287,7 +288,7 @@ def main() -> None:
         # send the message
         await ctx.send(" ".join(totalmessage))
 
-    @bot.command()
+    @bot.command(aliases=['render'])
     @commands.has_permissions(attach_files=True)
     async def image(ctx: commands.Context, *args):
         """makes a image of a blueprint"""
@@ -308,7 +309,7 @@ def main() -> None:
         if totalmessage != []:
             await ctx.send(" ".join(totalmessage))
 
-    @bot.command()
+    @bot.command(aliases=['guide'])
     async def rtfm(ctx: commands.Context, *question):
         """finds pages in the userguide based on a input"""
         print(time() + " INFO: user \"" + str(ctx.author.name) + "\" used: !rtfm "+" ".join(question))
