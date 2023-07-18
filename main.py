@@ -119,21 +119,25 @@ def getstats(blueprint):
             if len(image) != imageSize:
                 raise Exception("invalid vcb blueprint - unexpected image size: " + str(imageSize))
             counts = {}
+            area = 0
             for i in range(0, len(image), 4):
                 if image[i+3] > 0:
                     rgb = (int(image[i]), int(image[i+1]), int(image[i+2]), int(image[i+3]))
                     counts[rgb] = (counts[rgb] if rgb in counts else 0) + 1
+                    area = area + 1
         # advance to next block
         curpos += blockSize
     totalmessage.append("-----------\n")
     tracecount = 0
     buscount = 0
+    def percent (n, total):
+        return f" ({int(100.0 * n / total + 0.5)}%)" 
     def countMessage (name, counts, rgba):
         nonlocal tracecount  
         nonlocal buscount 
         nonlocal totalmessage
         if rgba in counts and counts[rgba] > 0 and not (name.startswith("Bus") or name.startswith("Trace")):
-            totalmessage.append(name + " pixels: " + str(counts[rgba]) + ", ")
+            totalmessage.append(name + " pixels: " + str(counts[rgba]) + percent(counts[rgba], width * height) + ", ")
         elif name.startswith("Trace")  and rgba in counts:
             tracecount += counts[rgba]
         elif name.startswith("Bus") and rgba in counts:
@@ -187,9 +191,10 @@ def getstats(blueprint):
     countMessage("Annotation", counts, (58, 69, 81, 255))
     countMessage("Filler", counts, (140, 171, 161, 255))
     if tracecount > 0:
-        totalmessage.append("Trace pixels: " + str(tracecount) + ", ")
+        totalmessage.append("Trace pixels: " + str(tracecount) + percent(tracecount, width * height) + ", ")
     if buscount > 0:
-        totalmessage.append("Bus pixels: " + str(buscount) + ", ")
+        totalmessage.append("Bus pixels: " + str(buscount) + percent(tracecount, width * height) + ", ")
+    totalmessage.append("Used area: " + str(area) + percent(area, width * height) + ", ")
     totalmessage.append("```")
     return totalmessage
 
