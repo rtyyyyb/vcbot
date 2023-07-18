@@ -80,8 +80,7 @@ def parseBlueprint (blueprint):
         layerID = int.from_bytes(blueprint[curpos+4:curpos+8], "big")
         imageSize = int.from_bytes(blueprint[curpos+8:curpos+12], "big")
         if blockSize < 12: # also prevents infinite loops on invalid data if blockSize is 0
-            totalmessage.append("invalid vcb blueprint - invalid layer block size: " + str(blockSize))
-            return  
+            raise Exception("invalid vcb blueprint - invalid layer block size: " + str(blockSize))
         if layerID == 0: # look for logic layer       
             try:
                 image = zstd.uncompress(blueprint[curpos+12:curpos+blockSize])
