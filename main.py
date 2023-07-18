@@ -254,6 +254,25 @@ def time():
     time = "[" + str(time[0:23]) + "]"
     return time
 
+async def extractBlueprintString (ctx: commands.Context, args):
+    """extract blueprint string from appropriate source"""
+    blueprint = None
+    if ctx.message.reference != None:
+        if ctx.message.reference.resolved != None:
+            if len(ctx.message.reference.resolved.attachments) == 1:
+                blueprint = (await ctx.message.reference.resolved.attachments[0].read()).decode()
+            elif ctx.message.reference.resolved.content != "":
+                for text in ctx.message.reference.resolved.content.split():
+                    if text.startswith("VCB+") or text.startswith("```VCB+"):
+                        blueprint = text
+    if len(args) >= 1:
+        for text in args:
+            if text.startswith("VCB+") or text.startswith("```VCB+"):
+                blueprint = text
+    elif len(ctx.message.attachments) == 1:
+        blueprint = (await ctx.message.attachments[0].read()).decode()
+    return blueprint
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(levelname)s: %(message)s")
     bot = CustomBot(prefix="!", activity=discord.Game(name='!help to learn more'))
@@ -269,21 +288,7 @@ def main() -> None:
         """returns the stats of a blueprint"""
         print(time() + " INFO: user \"" + str(ctx.author.name) + "\" used: !stats")
         # extract blueprint string from appropriate source
-        blueprint = None
-        if ctx.message.reference != None:
-            if ctx.message.reference.resolved != None:
-                if len(ctx.message.reference.resolved.attachments) == 1:
-                    blueprint = (await ctx.message.reference.resolved.attachments[0].read()).decode()
-                elif ctx.message.reference.resolved.content != "":
-                    for text in ctx.message.reference.resolved.content.split():
-                        if text.startswith("VCB+") or text.startswith("```VCB+"):
-                            blueprint = text
-        if len(args) >= 1:
-            for text in args:
-                if text.startswith("VCB+") or text.startswith("```VCB+"):
-                    blueprint = text
-        elif len(ctx.message.attachments) == 1:
-            blueprint = (await ctx.message.attachments[0].read()).decode()
+        blueprint = await extractBlueprintString(ctx, args)
         # build stats/error message
         totalmessage = []
         if blueprint == None:
@@ -302,21 +307,7 @@ def main() -> None:
         """makes a image of a blueprint"""
         print(time() + " INFO: user \"" + str(ctx.author.name) + "\" used: !image")
         # extract blueprint string from appropriate source
-        blueprint = None
-        if ctx.message.reference != None:
-            if ctx.message.reference.resolved != None:
-                if len(ctx.message.reference.resolved.attachments) == 1:
-                    blueprint = (await ctx.message.reference.resolved.attachments[0].read()).decode()
-                elif ctx.message.reference.resolved.content != "":
-                    for text in ctx.message.reference.resolved.content.split():
-                        if text.startswith("VCB+") or text.startswith("```VCB+"):
-                            blueprint = text
-        if len(args) >= 1:
-            for text in args:
-                if text.startswith("VCB+") or text.startswith("```VCB+"):
-                    blueprint = text
-        elif len(ctx.message.attachments) == 1:
-            blueprint = (await ctx.message.attachments[0].read()).decode()
+        blueprint = await extractBlueprintString(ctx, args)
         # render blueprint and send image
         totalmessage = []
         if blueprint == None:
