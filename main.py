@@ -270,11 +270,18 @@ def main() -> None:
         await ctx.send("hello! "+ str(ctx.author.mention))
 
     @bot.command(aliases=['statistics'])
-    async def stats(ctx: commands.Context,  *args):
-        """returns the stats of a blueprint"""
+    async def stats(ctx: commands.Context,  *blueprint):
+        """
+        makes a image of a blueprint
+                
+        Parameters
+        ----------
+        blueprint
+             : any blueprint either a file or text (can reply to a meesage for a image of that blueprint aswell)
+        """
         print(time() + " INFO: user \"" + str(ctx.author.name) + "\" used: !stats")
         # extract blueprint string from appropriate source
-        blueprint = await extractBlueprintString(ctx, args)
+        blueprint = await extractBlueprintString(ctx, blueprint)
         # build stats/error message
         totalmessage = []
         if blueprint == None:
@@ -289,11 +296,18 @@ def main() -> None:
 
     @bot.command(aliases=['render'])
     @commands.has_permissions(attach_files=True)
-    async def image(ctx: commands.Context, *args):
-        """makes a image of a blueprint"""
+    async def image(ctx: commands.Context, *blueprint):
+        """
+        makes a image of a blueprint
+                
+        Parameters
+        ----------
+        blueprint
+             : any blueprint either a file or text (can reply to a meesage for a image of that blueprint aswell)
+        """
         print(time() + " INFO: user \"" + str(ctx.author.name) + "\" used: !image")
         # extract blueprint string from appropriate source
-        blueprint = await extractBlueprintString(ctx, args)
+        blueprint = await extractBlueprintString(ctx, blueprint)
         # render blueprint and send image
         totalmessage = []
         if blueprint == None:
@@ -310,7 +324,15 @@ def main() -> None:
 
     @bot.command(aliases=['guide'])
     async def rtfm(ctx: commands.Context, *question):
-        """finds pages in the userguide based on a input"""
+        
+        """
+        finds pages in the userguide based on a input
+        
+        Parameters
+        ----------
+        question
+             : the thing you are looking for
+        """
         print(time() + " INFO: user \"" + str(ctx.author.name) + "\" used: !rtfm "+" ".join(question))
         totalmessage = []
         guides = [
@@ -320,6 +342,9 @@ def main() -> None:
             "assembly bookmarks",
             "assembly expressions",
             "assembly external editing",
+            "assembly macros 1",
+            "assembly macros 2",
+            "assembly origin directive",
             "assembly primitives labels",
             "assembly primitives numerics",
             "assembly primitives pointers",
