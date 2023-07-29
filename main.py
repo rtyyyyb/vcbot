@@ -322,9 +322,8 @@ def main() -> None:
         if totalmessage != []:
             await ctx.send(" ".join(totalmessage))
 
-    @bot.command(aliases=['guide'])
+    @bot.command(aliases=['guide','manual'])
     async def rtfm(ctx: commands.Context, *question):
-        
         """
         finds pages in the userguide based on a input
         
