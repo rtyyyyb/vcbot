@@ -254,23 +254,24 @@ def time():
 async def extractBlueprintString (ctx: commands.Context, args):
     """extract blueprint string from appropriate source"""
     blueprint = None
-    # first check for bp string in replied message...
-    if ctx.message.reference != None:
-        if ctx.message.reference.resolved != None:
-            if len(ctx.message.reference.resolved.attachments) == 1:
-                blueprint = (await ctx.message.reference.resolved.attachments[0].read()).decode()
-            elif ctx.message.reference.resolved.content != "":
-                for text in ctx.message.reference.resolved.content.split():
-                    if text.startswith("VCB+") or text.startswith("```VCB+"):
-                        blueprint = text
-    # bp string in current message will take precedence over one from replied message
+    # 1. first check for bp in args
     if len(args) >= 1:
         for text in args:
             if text.startswith("VCB+") or text.startswith("```VCB+"):
                 blueprint = text
-    # bp string from attachment only if no other bp strings were found
+    # 2. if not found check for bp in attachment
     if blueprint == None and len(ctx.message.attachments) == 1:
-        blueprint = (await ctx.message.attachments[0].read()).decode()
+        blueprint = (await ctx.message.attachments[0].read()).decode()    
+    # if not found, look in replied message...
+    if blueprint == None and ctx.message.reference != None and ctx.message.reference.resolved != None:
+        # 3. check reply content 
+        if ctx.message.reference.resolved.content != "":
+            for text in ctx.message.reference.resolved.content.split():
+                if text.startswith("VCB+") or text.startswith("```VCB+"):
+                    blueprint = text
+        # 4. if still no blueprint found, then check attachment
+        if blueprint == None and len(ctx.message.reference.resolved.attachments) == 1:
+            blueprint = (await ctx.message.reference.resolved.attachments[0].read()).decode()
     return blueprint
 
 def main() -> None:
