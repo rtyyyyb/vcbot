@@ -254,6 +254,7 @@ def time():
 async def extractBlueprintString (ctx: commands.Context, args):
     """extract blueprint string from appropriate source"""
     blueprint = None
+    # first check for bp string in replied message...
     if ctx.message.reference != None:
         if ctx.message.reference.resolved != None:
             if len(ctx.message.reference.resolved.attachments) == 1:
@@ -262,11 +263,13 @@ async def extractBlueprintString (ctx: commands.Context, args):
                 for text in ctx.message.reference.resolved.content.split():
                     if text.startswith("VCB+") or text.startswith("```VCB+"):
                         blueprint = text
+    # bp string in current message will take precedence over one from replied message
     if len(args) >= 1:
         for text in args:
             if text.startswith("VCB+") or text.startswith("```VCB+"):
                 blueprint = text
-    elif len(ctx.message.attachments) == 1:
+    # bp string from attachment only if no other bp strings were found
+    if blueprint == None and len(ctx.message.attachments) == 1:
         blueprint = (await ctx.message.attachments[0].read()).decode()
     return blueprint
 
