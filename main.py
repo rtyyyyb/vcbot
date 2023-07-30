@@ -190,6 +190,16 @@ def getstats(blueprint):
 
 def render(blueprint):
 
+    def fillBackground(image, width, height):
+        image = bytearray(image)
+        for offset in range(0, 4*width*height, 4):
+            if image[offset+3] == 0:
+                image[offset+0] = 30
+                image[offset+1] = 36
+                image[offset+2] = 49
+                image[offset+3] = 255
+        return image
+
     def zoomImage(image, width, height, zoom):
         if zoom == 1:
             return image
@@ -214,6 +224,7 @@ def render(blueprint):
         zoom = int(zoom)
         if zoom < 1:
             zoom = 1
+        image = fillBackground(image, width, height)
         image = zoomImage(image, width, height, zoom)
         width *= zoom
         height *= zoom
