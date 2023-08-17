@@ -112,22 +112,6 @@ class LogicIcons:
             img = Image.open(filename)
             self._images[name] = img
             
-    def dump(self, image: bytearray) -> None:
-        def add_ink(i) -> str:
-            n = int.from_bytes(image[i : i+3], 'big')
-            if n in self._logicMap:
-                return self._logicMap[n]
-            else:
-                return f"{n:06X}"
-
-        if len(image) < 4:
-            print("[]")
-            return
-        buf = "[" + add_ink(0)
-        for i in range(4, len(image), 4):
-            buf += ", " + add_ink(i)
-        print(buf + "]")
-            
     def resize(self, size: int) -> None:
         self._size = size
         for name in self._images:
