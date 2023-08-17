@@ -538,10 +538,8 @@ def main() -> None:
             for image in totalmessage:
                 await ctx.send(file=discord.File(image.replace(" ","_") + ".png"))
 
-    #bot.run()
+    bot.run()
 
-    rawbp = "VCB+AAAAAcQ582O1AAAAUQAAAHcAAAM4AAAAAAAAlpwotS/9YJyVFRkAcoYUGrClOQzDoisMToqOX8EHEFhhjVA9l3PQYfSkKf7Kts3hkWF2r2xMnXZkmMZUiu8aUwABpvhHAFN8VAQqAgZO26IiJsP8ylERN6bO4fUc3nBw2oGCqJEHTSXtBmEFSiFjDHPZDRLgMQgBI0EIkEQIEaEiQiUkhAiR0AiMgBBCSKkpNsHp+o4aQw97huy7+F9Xof80qhOAramzsZdTiEDds+rAJqYTgq2l09rLaEIM1kHV5npwsNw6v/DrdNdB/Tb0ms03YdrtkOKyMf+uLFxT4+9VqGtbB30737zb9HP430fKzsR7KyMZkiMargXi74vdtSjzIz7H9m2ebb5QNAJcAeEB1W7mG7Ong786WQSxV//skdGfeqbxW/8REc5+g4DZg5GhpvPOMyenQZG7vo0dLegTQeTnzr+DdhHUrOGIqNSEF/dY0Znx6lg3V4zXNV9Xh1yfI2U3vn3N9c/pR5HQQ/IX9Y4kWj11/qf5r1xfRpVjRB/2veY9L69mue+x6o+ze+kJbTIyE8/iHa6G49OSrqM/b5K6CZg84QsX8Ia9i/o5qU/X5m3Cff+n7ynDLOT5qd3mrD3AKq2r5Kt6oZA92qMW14eyG8Qqi0qNyH6Z7/HUA/bHmwdFm1Mq4a+7oR165pvpuahuPaVi40Ufztn+hkpyBuzPQc403sBv4lU41ysa6J4L153rXBDQM2x/Rk+D2dx88i5Z2W3eZO7jxsw2vcKUvk2bqAU3v6Xqtan9eiVfwFcfSF4TwEiXRc+2QNj8TK8othSXvmmWzOnZEhn/b2f55gxUMtoovYq/6xITnuToF9FGRF90kJjzN8ii3Ijr0GeQuBZLxiP5Ifk6+vOWYiYuV4I/jsaUK6KQm4djNBzcHtf5Z67cBsHfYdKs21TXRe/NIesssxOvxj/+N72Toz8ISdoj1UG/zoUnZI+Gv1YbabmNbm4q/fzhf+e7jnSdal3nf7LlON0RRH+a5P3G6Wmg1LptGXI5zu83BvzWfxUXfs9ZVNhfmwnrsORG0inSdf4fqTtPRKf0kYUNYS7TMKA2h3BFwG0bfxF1Hy0ADQAAACAAAAABAACWnCi1L/1gnJVVAAAQAAABAJcWHWAB%"
-    render(rawbp, icons)
 
 if __name__ == "__main__":
     main()
