@@ -104,6 +104,7 @@ class LogicIcons:
 
     def __init__(self, imgDir: str):
         self._images: dict[str, Image.Image] = {}
+        self._blendedImages: dict[str, Image.Image] = {}
         self._resizedImages: dict[str, Image.Image] = {}
         self._size: int = 0
 
@@ -112,10 +113,18 @@ class LogicIcons:
             img = Image.open(filename)
             self._images[name] = img
             
+        # Pre-process images for each color in the logic map
+        for color, ink in self._logicMap.items():
+            icon = self._images[ink]
+            tmp = Image.new("RGBA", icon.size)
+            # Fill the image with the RGB color
+            tmp.paste(Image.new("RGBA", icon.size, color=(color >> 16, (color >> 8) & 0xFF, color & 0xFF)), (0, 0))
+            self._blendedImages[color] = Image.blend(icon, tmp, 0.4)
+        
     def resize(self, size: int) -> None:
         self._size = size
-        for name in self._images:
-            tmp = self._images[name].resize((size, size), Image.Resampling.BICUBIC)
+        for name in self._blendedImages:
+            tmp = self._blendedImages[name].resize((size, size), Image.Resampling.BICUBIC)
             self._resizedImages[name] = tmp
 
     def addIcons(self, logic: list[bytearray], img: Image.Image, zoom: int) -> None:
@@ -126,15 +135,11 @@ class LogicIcons:
                 if color not in self._logicMap:
                     continue
 
-                ink = self._logicMap[color]
-                icon = self._resizedImages[ink]
+                icon = self._resizedImages[color]
                 x = xItr * zoom
                 y = yItr * zoom
 
-                tmp = img.crop((x, y, x+zoom, y+zoom))
-                tmp = Image.blend(icon, tmp, 0.4)
-                #img.paste(tmp, (x, y), icon)
-                img.alpha_composite(tmp, (x, y))
+                img.alpha_composite(icon, (x, y))
 
 
 ###############################################################################
@@ -331,7 +336,7 @@ def render(blueprint: str, icons: LogicIcons) -> None:
         if zoom >= 6:
             logic = [logic[i:i+4*width] for i in range(0, len(logic), 4*width)]
             icons.resize(zoom)
-            icons.addIcons(logic, pimage, width, height, zoom)
+            icons.addIcons(logic, pimage, zoom)
 
         pimage.save(filename)
 
@@ -533,8 +538,10 @@ def main() -> None:
             for image in totalmessage:
                 await ctx.send(file=discord.File(image.replace(" ","_") + ".png"))
 
-    bot.run()
+    #bot.run()
 
+    rawbp = "VCB+AAAAAcQ582O1AAAAUQAAAHcAAAM4AAAAAAAAlpwotS/9YJyVFRkAcoYUGrClOQzDoisMToqOX8EHEFhhjVA9l3PQYfSkKf7Kts3hkWF2r2xMnXZkmMZUiu8aUwABpvhHAFN8VAQqAgZO26IiJsP8ylERN6bO4fUc3nBw2oGCqJEHTSXtBmEFSiFjDHPZDRLgMQgBI0EIkEQIEaEiQiUkhAiR0AiMgBBCSKkpNsHp+o4aQw97huy7+F9Xof80qhOAramzsZdTiEDds+rAJqYTgq2l09rLaEIM1kHV5npwsNw6v/DrdNdB/Tb0ms03YdrtkOKyMf+uLFxT4+9VqGtbB30737zb9HP430fKzsR7KyMZkiMargXi74vdtSjzIz7H9m2ebb5QNAJcAeEB1W7mG7Ong786WQSxV//skdGfeqbxW/8REc5+g4DZg5GhpvPOMyenQZG7vo0dLegTQeTnzr+DdhHUrOGIqNSEF/dY0Znx6lg3V4zXNV9Xh1yfI2U3vn3N9c/pR5HQQ/IX9Y4kWj11/qf5r1xfRpVjRB/2veY9L69mue+x6o+ze+kJbTIyE8/iHa6G49OSrqM/b5K6CZg84QsX8Ia9i/o5qU/X5m3Cff+n7ynDLOT5qd3mrD3AKq2r5Kt6oZA92qMW14eyG8Qqi0qNyH6Z7/HUA/bHmwdFm1Mq4a+7oR165pvpuahuPaVi40Ufztn+hkpyBuzPQc403sBv4lU41ysa6J4L153rXBDQM2x/Rk+D2dx88i5Z2W3eZO7jxsw2vcKUvk2bqAU3v6Xqtan9eiVfwFcfSF4TwEiXRc+2QNj8TK8othSXvmmWzOnZEhn/b2f55gxUMtoovYq/6xITnuToF9FGRF90kJjzN8ii3Ijr0GeQuBZLxiP5Ifk6+vOWYiYuV4I/jsaUK6KQm4djNBzcHtf5Z67cBsHfYdKs21TXRe/NIesssxOvxj/+N72Toz8ISdoj1UG/zoUnZI+Gv1YbabmNbm4q/fzhf+e7jnSdal3nf7LlON0RRH+a5P3G6Wmg1LptGXI5zu83BvzWfxUXfs9ZVNhfmwnrsORG0inSdf4fqTtPRKf0kYUNYS7TMKA2h3BFwG0bfxF1Hy0ADQAAACAAAAABAACWnCi1L/1gnJVVAAAQAAABAJcWHWAB%"
+    render(rawbp, icons)
 
 if __name__ == "__main__":
     main()
