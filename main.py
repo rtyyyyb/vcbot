@@ -333,7 +333,6 @@ def render(blueprint: str, icons: LogicIcons) -> None:
             icons.resize(zoom)
             icons.addIcons(logic, pimage, width, height, zoom)
 
-        pimage.show()
         pimage.save(filename)
 
     bp = parseBlueprint(blueprint)
