@@ -44,7 +44,7 @@ class CustomBot(commands.Bot):
     @property
     def uptime(self) -> datetime.timedelta:
         return datetime.datetime.utcnow() - self._uptime
-        
+
 class Blueprint:
     version: int
     checksum: bytearray
@@ -68,7 +68,7 @@ def parseBlueprint (blueprint):
     version = int.from_bytes(blueprint[0:3], "big")
     checksum = blueprint[3:9]
     width = int.from_bytes(blueprint[9:13], "big")
-    height = int.from_bytes(blueprint[13:17], "big")        
+    height = int.from_bytes(blueprint[13:17], "big")
     if version != 0:
         raise Exception("invalid vcb blueprint - unexpected version number: " + str(version))
     if width * height == 0:
@@ -121,10 +121,10 @@ def getstats(blueprint):
     tracecount = 0
     buscount = 0
     def percent (n, total):
-        return f" ({int(100.0 * n / total + 0.5)}%)" 
+        return f" ({int(100.0 * n / total + 0.5)}%)"
     def countMessage (name, counts, rgba):
-        nonlocal tracecount  
-        nonlocal buscount 
+        nonlocal tracecount
+        nonlocal buscount
         nonlocal totalmessage
         if rgba in counts and counts[rgba] > 0 and not (name.startswith("Bus") or name.startswith("Trace")):
             totalmessage.append(name + " pixels: " + str(counts[rgba]) + percent(counts[rgba], bp.width * bp.height) + ", ")
@@ -229,14 +229,14 @@ def render(blueprint):
         width *= zoom
         height *= zoom
         # split to arrays of rows.
-        image = [image[i:i+4*width] for i in range(0, len(image), 4*width)] 
+        image = [image[i:i+4*width] for i in range(0, len(image), 4*width)]
         pngimage = png.from_array(image, "RGBA", {
             "width": width,
             "height": height,
             "bitdepth": 8
         })
         pngimage.save(filename)
- 
+
     bp = parseBlueprint(blueprint)
 
     zoom = int(800 / bp.width)
@@ -247,7 +247,7 @@ def render(blueprint):
     saveImage("tempimage.png", bp.logicImage, bp.width, bp.height, zoom)
 
 def time():
-    time = str(datetime.datetime.utcnow()).replace(".",",") 
+    time = str(datetime.datetime.utcnow()).replace(".",",")
     time = "[" + str(time[0:23]) + "]"
     return time
 
@@ -261,7 +261,7 @@ async def extractBlueprintString (ctx: commands.Context, args):
                 blueprint = text
     # 2. if not found check for bp in attachment
     if blueprint == None and len(ctx.message.attachments) == 1:
-        blueprint = (await ctx.message.attachments[0].read()).decode()    
+        blueprint = (await ctx.message.attachments[0].read()).decode()
     # if not found, look in replied message...
     if blueprint == None and ctx.message.reference != None and ctx.message.reference.resolved != None:
         # 3. check reply content 
@@ -288,7 +288,7 @@ def main() -> None:
     async def stats(ctx: commands.Context,  *blueprint):
         """
         makes a image of a blueprint
-                
+
         Parameters
         ----------
         blueprint
@@ -314,7 +314,7 @@ def main() -> None:
     async def image(ctx: commands.Context, *blueprint):
         """
         makes a image of a blueprint
-                
+
         Parameters
         ----------
         blueprint
@@ -341,7 +341,7 @@ def main() -> None:
     async def rtfm(ctx: commands.Context, *question):
         """
         finds pages in the userguide based on a input
-        
+
         Parameters
         ----------
         question
@@ -403,7 +403,7 @@ def main() -> None:
             "virtual devices virtual memory 1",
             "virtual devices virtual memory 2",
             "virtual devices virtual memory 3",
-            "virtual devices", 
+            "virtual devices",
         ]
         for item in guides:
             if " ".join(question).lower() in item:
